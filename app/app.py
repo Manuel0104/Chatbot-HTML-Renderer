@@ -145,7 +145,7 @@ def html_side_panel() -> rx.Component:
             rx.el.div(
                 rx.el.iframe(
                     src_doc=ChatState.side_panel_html_content,
-                    sandbox="allow-scripts allow-same-origin",
+                    sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups",
                     class_name="w-full h-full border-0",
                 ),
                 class_name="flex-1 overflow-auto",

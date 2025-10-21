@@ -130,7 +130,7 @@ class ChatState(rx.State):
 
     @rx.event
     def show_html_in_panel(self, html_content: str):
-        self.side_panel_html_content = html_content
+        self.side_panel_html_content = f'<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <script src="https://cdn.tailwindcss.com"></script>\n</head>\n<body>\n  {html_content}\n</body>\n</html>'
         self.show_side_panel = True
 
     @rx.event

@@ -1,6 +1,8 @@
 import reflex as rx
 import asyncio
 from typing import TypedDict, Literal
+import re
+from bs4 import BeautifulSoup
 
 
 class Message(TypedDict):
@@ -130,7 +132,31 @@ class ChatState(rx.State):
 
     @rx.event
     def show_html_in_panel(self, html_content: str):
-        self.side_panel_html_content = f'<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <script src="https://cdn.tailwindcss.com"></script>\n</head>\n<body>\n  {html_content}\n</body>\n</html>'
+        soup = BeautifulSoup(html_content, "html.parser")
+        external_scripts = []
+        for script_tag in soup.find_all("script", src=True):
+            external_scripts.append(script_tag)
+            script_tag.decompose()
+        inline_scripts = []
+        for script_tag in soup.find_all("script"):
+            inline_scripts.append(script_tag.string or "")
+            script_tag.decompose()
+        body_content = str(soup)
+        head_scripts = """
+""".join(external_scripts)
+        body_scripts = (
+            """
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        """
+            + """
+""".join(inline_scripts)
+            + """
+    });
+</script>
+"""
+        )
+        self.side_panel_html_content = f'<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <script src="https://cdn.tailwindcss.com"></script>\n  {head_scripts}\n</head>\n<body>\n  {body_content}\n  {body_scripts}\n</body>\n</html>'
         self.show_side_panel = True
 
     @rx.event

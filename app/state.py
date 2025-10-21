@@ -65,6 +65,13 @@ class ChatState(rx.State):
         return ChatState.process_bot_response
 
     def _generate_html_from_text(self, text: str) -> tuple[str, str | None]:
+        stripped_text = text.strip()
+        if (
+            stripped_text.startswith("<")
+            and stripped_text.endswith(">")
+            and ("<" in stripped_text[1:-1])
+        ):
+            return ("I've rendered the HTML you provided.", stripped_text)
         text_lower = text.lower()
         if "blue button" in text_lower:
             return (
@@ -94,7 +101,7 @@ class ChatState(rx.State):
 </form>""",
             )
         return (
-            "Sorry, I didn't understand that. Try 'create a blue button' or 'show a form'.",
+            "Sorry, I didn't understand that. Try 'create a blue button' or 'show a form'. You can also paste raw HTML.",
             None,
         )
 
